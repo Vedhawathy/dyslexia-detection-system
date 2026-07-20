@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dyslexia Prediction – Feedback & Suggestion</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f8;
+    margin:0;
+    padding:0;
+}
+.container{
+    max-width:900px;
+    margin:40px auto;
+    background:#fff;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+h1{
+    text-align:center;
+    color:#333;
+}
+.section{
+    margin-bottom:25px;
+}
+label{
+    display:block;
+    margin-top:10px;
+    font-weight:bold;
+}
+input{
+    width:100%;
+    padding:8px;
+    margin-top:5px;
+}
+button{
+    margin-top:20px;
+    padding:12px 20px;
+    border:none;
+    background:#007bff;
+    color:#fff;
+    font-size:16px;
+    border-radius:6px;
+    cursor:pointer;
+}
+button:hover{
+    background:#0056b3;
+}
+.result{
+    padding:15px;
+    border-radius:8px;
+    margin-top:15px;
+}
+.low{ background:#d4edda; color:#155724; }
+.medium{ background:#fff3cd; color:#856404; }
+.high{ background:#f8d7da; color:#721c24; }
+
+ul{
+    margin-left:20px;
+}
+.footer{
+    text-align:center;
+    font-size:13px;
+    color:#666;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<h1>🧠 Dyslexia Prediction & Feedback</h1>
+
+<div class="section">
+<label>Average Reaction Time (ms)</label>
+<input type="number" id="reaction">
+
+<label>Accuracy (%)</label>
+<input type="number" id="accuracy">
+
+<label>Color Recognition Errors</label>
+<input type="number" id="colorErr">
+
+<label>Number Recognition Errors</label>
+<input type="number" id="numberErr">
+
+<button onclick="analyze()">Analyze</button>
+</div>
+
+<div id="output"></div>
+
+<button onclick="downloadCSV()">⬇ Download Result CSV</button>
+
+<div class="footer">
+<p>⚠ This tool is for screening purposes only and not a medical diagnosis.</p>
+</div>
+</div>
+
+<script>
+let resultData = {};
+
+function analyze(){
+    let reaction = parseInt(document.getElementById("reaction").value);
+    let accuracy = parseInt(document.getElementById("accuracy").value);
+    let colorErr = parseInt(document.getElementById("colorErr").value);
+    let numberErr = parseInt(document.getElementById("numberErr").value);
+
+    if(isNaN(reaction) || isNaN(accuracy) || isNaN(colorErr) || isNaN(numberErr)){
+        alert("Please fill all fields");
+        return;
+    }
+
+    let score = 0;
+    if(reaction > 800) score += 2;
+    if(accuracy < 70) score += 2;
+    if(colorErr > 5) score += 1;
+    if(numberErr > 5) score += 1;
+
+    let risk = "";
+    let cls = "";
+    let suggestion = "";
+
+    if(score <= 1){
+        risk = "Low Risk";
+        cls = "low";
+        suggestion = `
+        <ul>
+            <li>Maintain regular reading practice</li>
+            <li>Use clear fonts and proper spacing</li>
+            <li>Continue cognitive games</li>
+        </ul>`;
+    }
+    else if(score <= 3){
+        risk = "Moderate Risk";
+        cls = "medium";
+        suggestion = `
+        <ul>
+            <li>Use multisensory learning methods</li>
+            <li>Practice phonics-based reading</li>
+            <li>Reduce visual distractions</li>
+            <li>Engage in reaction-time improvement games</li>
+        </ul>`;
+    }
+    else{
+        risk = "High Risk";
+        cls = "high";
+        suggestion = `
+        <ul>
+            <li>Consult a special educator or psychologist</li>
+            <li>Use dyslexia-friendly fonts</li>
+            <li>Break learning tasks into small steps</li>
+            <li>Allow extra time for reading & writing</li>
+        </ul>`;
+    }
+
+    let confidence = Math.min(100, 60 + score * 10);
+
+    document.getElementById("output").innerHTML = `
+    <div class="result ${cls}">
+        <h3>Prediction Result: ${risk}</h3>
+        <p><b>Confidence Score:</b> ${confidence}%</p>
+        <h4>Suggested Actions:</h4>
+        ${suggestion}
+    </div>`;
+
+    resultData = {
+        ReactionTime: reaction,
+        Accuracy: accuracy,
+        ColorErrors: colorErr,
+        NumberErrors: numberErr,
+        RiskLevel: risk,
+        Confidence: confidence
+    };
+}
+
+function downloadCSV(){
+    if(Object.keys(resultData).length === 0){
+        alert("No data to download");
+        return;
+    }
+
+    let csv = "ReactionTime,Accuracy,ColorErrors,NumberErrors,RiskLevel,Confidence\n";
+    csv += `${resultData.ReactionTime},${resultData.Accuracy},${resultData.ColorErrors},${resultData.NumberErrors},${resultData.RiskLevel},${resultData.Confidence}`;
+
+    let blob = new Blob([csv], { type: "text/csv" });
+    let url = URL.createObjectURL(blob);
+
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "dyslexia_prediction_result.csv";
+    a.click();
+}
+</script>
+</body>
+</html>

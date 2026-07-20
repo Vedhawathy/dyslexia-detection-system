@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Canvas Pac-Man Dyslexia Screening</title>
+
+<style>
+body {
+    text-align: center;
+    background: #000;
+    color: yellow;
+    font-family: Arial;
+}
+canvas {
+    background: black;
+    border: 3px solid blue;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Pac-Man Dyslexia Screening Game</h2>
+<p>Use Arrow Keys | Collect dots | Avoid Ghost</p>
+
+<canvas id="game" width="420" height="300"></canvas>
+<p id="info"></p>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const tile = 20;
+let score = 0;
+let wallHits = 0;
+let ghostHits = 0;
+let startTime = Date.now();
+
+const map = [
+ [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+ [1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1],
+ [1,0,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,0,1],
+ [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
+ [1,0,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,0,1],
+ [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+ [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+];
+
+let pacman = {x:1, y:1};
+let ghost = {x:10, y:3};
+
+function drawMap() {
+    for(let y=0;y<map.length;y++){
+        for(let x=0;x<map[y].length;x++){
+            if(map[y][x] === 1){
+                ctx.fillStyle = "blue";
+                ctx.fillRect(x*tile,y*tile,tile,tile);
+            }
+            if(map[y][x] === 0){
+                ctx.fillStyle = "yellow";
+                ctx.beginPath();
+                ctx.arc(x*tile+10,y*tile+10,3,0,Math.PI*2);
+                ctx.fill();
+            }
+        }
+    }
+}
+
+function drawPacman() {
+    ctx.fillStyle = "yellow";
+    ctx.beginPath();
+    ctx.arc(pacman.x*tile+10,pacman.y*tile+10,9,0,Math.PI*2);
+    ctx.fill();
+}
+
+function drawGhost() {
+    ctx.fillStyle = "red";
+    ctx.beginPath();
+    ctx.arc(ghost.x*tile+10,ghost.y*tile+10,9,0,Math.PI*2);
+    ctx.fill();
+}
+
+function movePacman(dx,dy){
+    const nx = pacman.x + dx;
+    const ny = pacman.y + dy;
+
+    if(map[ny][nx] !== 1){
+        pacman.x = nx;
+        pacman.y = ny;
+
+        if(map[ny][nx] === 0){
+            map[ny][nx] = 2;
+            score++;
+        }
+    } else {
+        wallHits++;
+    }
+}
+
+function moveGhost(){
+    const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+    const d = dirs[Math.floor(Math.random()*4)];
+    const nx = ghost.x + d[0];
+    const ny = ghost.y + d[1];
+    if(map[ny][nx] !== 1){
+        ghost.x = nx;
+        ghost.y = ny;
+    }
+}
+
+function checkCollision(){
+    if(pacman.x === ghost.x && pacman.y === ghost.y){
+        ghostHits++;
+        ghost.x = 10;
+        ghost.y = 3;
+    }
+}
+
+document.addEventListener("keydown", e=>{
+    if(e.key==="ArrowUp") movePacman(0,-1);
+    if(e.key==="ArrowDown") movePacman(0,1);
+    if(e.key==="ArrowLeft") movePacman(-1,0);
+    if(e.key==="ArrowRight") movePacman(1,0);
+});
+
+function gameLoop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    drawMap();
+    drawPacman();
+    drawGhost();
+    moveGhost();
+    checkCollision();
+
+    document.getElementById("info").innerText =
+      "Score: "+score+" | Wall Hits: "+wallHits+" | Ghost Hits: "+ghostHits;
+
+    if(score >= 15){
+        endGame();
+        return;
+    }
+    requestAnimationFrame(gameLoop);
+}
+
+function endGame(){
+    let timeTaken = (Date.now() - startTime)/1000;
+    let result = "";
+
+    if(score >= 15 && timeTaken < 60 && wallHits < 5){
+        result = "✅ NON-DYSLEXIA INDICATED";
+    } else {
+        result = "⚠️ POSSIBLE DYSLEXIA – FURTHER ASSESSMENT ADVISED";
+    }
+
+    alert(
+        "Game Over\n\n"+
+        "Time: "+timeTaken.toFixed(1)+" sec\n"+
+        "Score: "+score+"\n"+
+        "Wall Hits: "+wallHits+"\n\n"+
+        result
+    );
+}
+
+gameLoop();
+</script>
+<button onclick="redirectTo('game.html')">Logout</button>
+
+<script>
+function redirectTo(page) {
+    window.location.href = page;
+}
+</script>
+
+</body>
+</html>

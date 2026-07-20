@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dyslexia Screening System</title>
+
+<!-- PDF Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body {
+    font-family: Arial;
+    background: linear-gradient(135deg,#e3f2fd,#fce4ec);
+    text-align: center;
+}
+
+h2 { margin-top: 20px; }
+
+.box {
+    width: 450px;
+    height: 280px;
+    border: 2px solid #000;
+    margin: 20px auto;
+    position: relative;
+    background: #fff;
+}
+
+.dot, .letter {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    position: absolute;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 18px;
+}
+
+.red { background: red; }
+.blue { background: blue; }
+.green { background: green; }
+.yellow { background: gold; color:#000; }
+
+#result { font-size: 18px; margin-top: 20px; }
+button { padding: 10px 16px; margin: 10px; cursor: pointer; }
+</style>
+</head>
+
+<body>
+
+<h2 id="taskTitle">TASK 1: Pick RED Colour</h2>
+
+<div class="box" id="taskBox"></div>
+
+<div id="result"></div>
+
+<button id="csvBtn" style="display:none" onclick="downloadCSV()">Download CSV</button>
+<button id="pdfBtn" style="display:none" onclick="downloadPDF()">Download PDF Report</button>
+
+<script>
+let task = 1;
+let score = 0;
+let times = [];
+let risks = [];
+let startTime;
+let clickable = false;
+
+function randomPos() {
+    return {
+        top: Math.floor(Math.random()*220),
+        left: Math.floor(Math.random()*400)
+    };
+}
+
+function eyeDelay() {
+    clickable = false;
+    setTimeout(()=>clickable=true, Math.random()*1000+500);
+}
+
+function startTask() {
+    const box = document.getElementById("taskBox");
+    box.innerHTML = "";
+    eyeDelay();
+    startTime = new Date();
+
+    if (task <= 2) {
+        ["red","blue","green","yellow"].forEach(c=>{
+            let d = document.createElement("div");
+            d.className = "dot "+c;
+            let p = randomPos();
+            d.style.top = p.top+"px";
+            d.style.left = p.left+"px";
+            d.onclick = ()=>answer(c==="red");
+            box.appendChild(d);
+        });
+    } else {
+        let items = ["A","B","3","7"];
+        items.forEach(x=>{
+            let l = document.createElement("div");
+            l.className = "letter blue";
+            let p = randomPos();
+            l.style.top = p.top+"px";
+            l.style.left = p.left+"px";
+            l.innerText = x;
+            l.onclick = ()=>answer(x==="B");
+            box.appendChild(l);
+        });
+    }
+}
+
+function answer(correct) {
+    if (!clickable) return;
+
+    let t = ((new Date()-startTime)/1000).toFixed(2);
+    times.push(parseFloat(t));
+
+    let risk = t<=2 ? "LOW" : t<=3 ? "AVERAGE" : "HIGH";
+    risks.push(risk);
+
+    if (correct) score++;
+
+    task++;
+    if (task===2) document.getElementById("taskTitle").innerText="TASK 2: Pick RED Colour";
+    else if (task===3) document.getElementById("taskTitle").innerText="TASK 3: Pick Letter B";
+    else showResult();
+
+    if (task<=3) startTask();
+}
+
+function showResult() {
+    document.getElementById("taskBox").style.display="none";
+
+    let avgTime = (times.reduce((a,b)=>a+b,0)/times.length).toFixed(2);
+    let finalRisk =
+        avgTime<=2 ? "LOW" :
+        avgTime<=3 ? "AVERAGE" : "HIGH";
+
+    let feedback =
+        finalRisk==="LOW" ? "GOOD PERFORMANCE" :
+        finalRisk==="AVERAGE" ? "PRACTICE MORE" :
+        "CONSULT DOCTOR";
+
+    document.getElementById("result").innerHTML=`
+    <b>Score:</b> ${score}/3<br>
+    <b>Average Time:</b> ${avgTime} sec<br>
+    <b>Risk Level:</b> ${finalRisk}<br>
+    <b>Feedback:</b> ${feedback}
+    `;
+
+    document.getElementById("csvBtn").style.display="inline";
+    document.getElementById("pdfBtn").style.display="inline";
+
+    window.finalData={score,avgTime,finalRisk,feedback};
+}
+
+function downloadCSV(){
+    let csv="Task,Time,Risk\n";
+    times.forEach((t,i)=>csv+=`Task ${i+1},${t},${risks[i]}\n`);
+    csv+=`\nScore,${finalData.score}\nAverage Time,${finalData.avgTime}\nRisk,${finalData.finalRisk}\nFeedback,${finalData.feedback}`;
+    let b=new Blob([csv],{type:"text/csv"});
+    let a=document.createElement("a");
+    a.href=URL.createObjectURL(b);
+    a.download="dyslexia_result.csv";
+    a.click();
+}
+
+function downloadPDF(){
+    const { jsPDF } = window.jspdf;
+    let pdf=new jsPDF();
+    pdf.text("Dyslexia Screening Report",20,20);
+    pdf.text(`Score: ${finalData.score}/3`,20,40);
+    pdf.text(`Average Time: ${finalData.avgTime} sec`,20,50);
+    pdf.text(`Risk Level: ${finalData.finalRisk}`,20,60);
+    pdf.text(`Feedback: ${finalData.feedback}`,20,70);
+    pdf.save("Dyslexia_Report.pdf");
+}
+
+startTask();
+</script>
+<button onclick="redirectTo('feedback.html')">Logout</button>
+
+<script>
+function redirectTo(page) {
+    window.location.href = page;
+}
+</script>
+</body>
+</html>

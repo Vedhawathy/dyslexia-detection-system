@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pac-Man Game</title>
+
+<style>
+body {
+    background: black;
+    color: yellow;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+#game {
+    margin: 20px auto;
+    width: 420px;
+}
+
+.row {
+    display: flex;
+}
+
+.cell {
+    width: 20px;
+    height: 20px;
+}
+
+.wall {
+    background: #0033cc;
+}
+
+.dot {
+    background: black;
+    position: relative;
+}
+
+.dot::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: yellow;
+    border-radius: 50%;
+    position: absolute;
+    top: 7px;
+    left: 7px;
+}
+
+.pacman {
+    background: yellow;
+    border-radius: 50%;
+}
+
+.ghost {
+    background: red;
+    border-radius: 50%;
+}
+
+#score {
+    font-size: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Pac-Man</h1>
+<p>Use Arrow Keys to Move</p>
+<div id="score">Score: 0</div>
+<div id="game"></div>
+
+<script>
+const map = [
+ [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+ [1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1],
+ [1,0,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,0,1],
+ [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
+ [1,0,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,0,1],
+ [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+ [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+];
+
+let pacman = { x: 1, y: 1 };
+let ghost = { x: 10, y: 3 };
+let score = 0;
+
+const game = document.getElementById("game");
+
+function draw() {
+    game.innerHTML = "";
+    map.forEach((row, y) => {
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "row";
+        row.forEach((cell, x) => {
+            const cellDiv = document.createElement("div");
+            cellDiv.className = "cell";
+
+            if (cell === 1) cellDiv.classList.add("wall");
+            if (cell === 0) cellDiv.classList.add("dot");
+            if (pacman.x === x && pacman.y === y) cellDiv.className = "cell pacman";
+            if (ghost.x === x && ghost.y === y) cellDiv.className = "cell ghost";
+
+            rowDiv.appendChild(cellDiv);
+        });
+        game.appendChild(rowDiv);
+    });
+}
+
+function movePacman(dx, dy) {
+    const nx = pacman.x + dx;
+    const ny = pacman.y + dy;
+
+    if (map[ny][nx] !== 1) {
+        pacman.x = nx;
+        pacman.y = ny;
+
+        if (map[ny][nx] === 0) {
+            map[ny][nx] = 2;
+            score += 10;
+            document.getElementById("score").innerText = "Score: " + score;
+        }
+    }
+}
+
+function moveGhost() {
+    const dirs = [
+        {x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}
+    ];
+    const d = dirs[Math.floor(Math.random() * dirs.length)];
+    const nx = ghost.x + d.x;
+    const ny = ghost.y + d.y;
+
+    if (map[ny][nx] !== 1) {
+        ghost.x = nx;
+        ghost.y = ny;
+    }
+
+    if (ghost.x === pacman.x && ghost.y === pacman.y) {
+        alert("Game Over!");
+        location.reload();
+    }
+}
+
+document.addEventListener("keydown", e => {
+    if (e.key === "ArrowUp") movePacman(0, -1);
+    if (e.key === "ArrowDown") movePacman(0, 1);
+    if (e.key === "ArrowLeft") movePacman(-1, 0);
+    if (e.key === "ArrowRight") movePacman(1, 0);
+    draw();
+});
+
+setInterval(() => {
+    moveGhost();
+    draw();
+}, 500);
+
+draw();
+</script>
+
+</body>
+</html>
+ <button onclick="redirectTo('index.html')">logout </button>
+<script>
+function logout() {
+    window.location.href = "logout.php";
+}
+</script>

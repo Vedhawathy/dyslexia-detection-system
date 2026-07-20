@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dyslexia Prediction Game</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f0f6ff;
+    text-align: center;
+    padding: 20px;
+}
+
+.game-box {
+    background: white;
+    padding: 20px;
+    width: 420px;
+    margin: auto;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.word {
+    font-size: 42px;
+    margin: 20px 0;
+    color: #333;
+}
+
+input {
+    padding: 10px;
+    font-size: 18px;
+    width: 250px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 18px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.result {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Dyslexia Screening Game</h2>
+<p>Type the word exactly as shown</p>
+
+<div class="game-box">
+    <div id="word" class="word"></div>
+
+    <input type="text" id="answer" placeholder="Type here" autofocus>
+    <br><br>
+
+    <button onclick="checkWord()">Submit</button>
+
+    <p>Score: <span id="score">0</span>/5</p>
+    <p>Time Taken: <span id="time">0</span> sec</p>
+
+    <div id="result" class="result"></div>
+</div>
+
+<script>
+let words = ["bed", "dad", "mad", "was", "pen"];
+let index = 0;
+let score = 0;
+let startTime = Date.now();
+
+document.getElementById("word").innerText = words[index];
+
+function checkWord() {
+    let userInput = document.getElementById("answer").value.trim();
+    let correctWord = words[index];
+
+    if (userInput === correctWord) {
+        score++;
+    }
+
+    index++;
+    document.getElementById("score").innerText = score;
+    document.getElementById("answer").value = "";
+
+    if (index < words.length) {
+        document.getElementById("word").innerText = words[index];
+    } else {
+        showResult();
+    }
+}
+
+function showResult() {
+    let endTime = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById("time").innerText = endTime;
+
+    let risk = "";
+
+    if (score >= 4 && endTime < 20) {
+        risk = "✅ Low Risk of Dyslexia";
+    } else if (score >= 2) {
+        risk = "⚠️ Moderate Risk – Further Assessment Recommended";
+    } else {
+        risk = "🚨 High Risk – Professional Evaluation Advised";
+    }
+
+    document.getElementById("result").innerText = risk;
+}
+</script>
+<button onclick="redirectTo('onepage.html')">Logout</button>
+
+<script>
+function redirectTo(page) {
+    window.location.href = page;
+}
+</script>
+
+</body>
+</html>
