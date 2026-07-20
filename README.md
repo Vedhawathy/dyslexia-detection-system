@@ -1,47 +1,59 @@
-# Dyslexia Detection
-## Running the webapp
+# Dyslexia Detection System
 
-The app is developed in Python with frontend Developed in streamlit. To run the app in a vertual environment install the packages in ```requirements.txt``` using the command
+## Overview
+The Dyslexia Detection System is a deep learning-based application designed to identify dyslexia at an early stage by analyzing handwriting and speech patterns. The system uses Convolutional Neural Networks (CNN) for handwriting analysis and Long Short-Term Memory (LSTM) networks for speech processing.
+
+## Features
+- Handwriting analysis using CNN
+- Speech analysis using LSTM
+- Early dyslexia prediction
+- User-friendly web interface
+- Deep learning-based classification
+
+## Technologies Used
+- Python
+- Flask
+- TensorFlow
+- OpenCV
+- CNN
+- LSTM
+- HTML
+- CSS
+
+## Project Structure
+```
+app.py              # Main Flask application
+inputData/          # Dataset
+static/             # Images and CSS
+template/           # HTML templates
+upload/             # Uploaded files
+requirements.txt    # Python dependencies
+```
+
+## How to Run
+1. Install Python.
+2. Install the required packages using:
 
 ```
 pip install -r requirements.txt
 ```
 
-Then run the app using
+3. Run the application:
 
 ```
-streamlit run app.py
+python app.py
 ```
 
-## Folder structure:
+4. Open the application in your browser.
 
-### data
+## Results
+The system predicts whether the input indicates dyslexia by analyzing handwriting and speech features using deep learning models.
 
-contains the datasets used for Machine learning. The data used is manually collected for the project from the internet and is not medically verified. it may contain unintended biases, use the data at your own risk.
+## Future Scope
+- Improve prediction accuracy.
+- Support multiple languages.
+- Deploy the application on cloud platforms.
 
-The handwriting samples of the dyslexic childern are in ```dyslexic``` directory and the non-dyslexic samples are in ```non_dyslexic``` directory. 
-
-The ```data.csv``` has the extracted features of all the images in the above directories. the features are as follows:
-<ul>
-<li>Spelling accuracy</li>
-<li>Gramatical accuracy</li> 
-<li>Percentage of corrections</li>
-<li>Phonetic accuraccy (%)</li>
-<li>Presence of dyslexia</li>
-</ul>
-
-
-the ```school_symptoms.txt``` has the symptoms of the disorder documented.
-
-### images:
-This folder contains the output images from visualization of the extracted features from the images which explains the accuracy of the classifier on the data.
-
-![Alt text](images/percentage_of_corrections.jpg)
-![Alt text](images/percentage_of_phonetic_accuraccy.jpg)
-![Alt text](images/spelling_accuracy.jpg)
-
-### model_training:
-This folder contains the training and evaluation of various machine learning models on the extracted data.
-
-### app.py:
-this file is the main file of the web application. This file has the logic for extracting all the required features from the uploaded image and making a predicton using the pretrained decision tree model.
+## Author
+**Vedhawathy S**
+B.Tech – Electronics and Communication Engineering
